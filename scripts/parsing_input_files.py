@@ -132,10 +132,3 @@ def process_2016_census_eta():
     # -- preprocess 2016 census ETa file --- #
     folder = '/Users/N/projects/evapotranspiration/data/ProcessedETa_2016'
     flatten_files(folder).to_csv(folder + '/201789_eta_census16.csv', sep=';')
-
-
-def main():
-    print("call a parsing method from above")
-
-
-main()
