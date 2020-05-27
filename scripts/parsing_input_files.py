@@ -4,6 +4,8 @@ from glob import glob
 from os.path import basename
 import pandas as pd
 
+# TODO add filename parsing function as parameter to the flattening function
+
 
 def parse_weekly_filename(filename: str):
     """filename in the example is of the form weekly201801wk4.csv"""
@@ -57,7 +59,7 @@ def flatten_crop_files(folder_path, crops):
     return frame
 
 
-def flatten_files(folder_path):
+def flatten_files(folder_path: str):
     """Flatten CSV files with filename info into a single DataFrame"""
     path = folder_path + "/*csv"
     filenames = glob(path)
@@ -79,28 +81,61 @@ def add_date(data):
         lambda x: datetime(x.year, x.month, x.day), axis=1)
 
 
-def main():
+def flatten_powwow_power_data(folder_path):
+    """Flatten CSV files with into a single DataFrame"""
+    # to remove headers first, on mac run: sed -ie "1,14d" filename
+    path = folder_path + "/*csv"
+    filenames = glob(path)
+    dataframes = []
+    for filename in filenames:
+        # upload csv data to the datafame
+        df = pd.read_csv(filename, index_col=None, header=0)
+        dataframes.append(df)
+    frame = pd.concat(dataframes, axis=0, ignore_index=True)
+    return frame
+
+
+def powwow_2014_census_eta_data_to_single_frame():
     # --- 2014 ETa data to a single file --- #
+    # This filename example is of the form /full_path/CropETa_2019038.csv
+    # use parse_daily_eta_filename for flattening # TODO
     folder = '/Users/N/projects/evapotranspiration/data/ProcessedETa_2014'
     flatten_files(folder).to_csv(folder + '/2019_eta_census14.csv', sep=';')
 
+
+def power_per_crop_into_single_file():
     # --- Power per crop data into a single file --- #
     folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
     crops = ['almonds', 'citrus', 'grapes', 'idle','pistachios', 'wheat']
+    # TODO
     flatten_crop_files(folder, crops).to_csv(folder + '/all_crops.csv')
 
+
+def power_per_crop_data_into_multiple_crop_files(folder):
     # --- Power per crop data into multiple files --- #
+    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
+    crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     for crop in crops:
         flatten_crop_files(folder, [crop]).to_csv(folder + '/' + crop + '.csv')
 
+
+def number_of_unique_accounts():
     # --- get number of unique accounts from each dataset --- #
+    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
+    crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     for crop in crops:
         data = pd.read_csv(folder + '/' + crop + '.csv')
         print(crop, len(data['acct'].unique()))
 
+
+def process_2016_census_eta():
     # -- preprocess 2016 census ETa file --- #
     folder = '/Users/N/projects/evapotranspiration/data/ProcessedETa_2016'
     flatten_files(folder).to_csv(folder + '/201789_eta_census16.csv', sep=';')
+
+
+def main():
+    print("call a parsing method from above")
 
 
 main()
