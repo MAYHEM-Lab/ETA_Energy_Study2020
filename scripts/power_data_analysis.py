@@ -48,6 +48,7 @@ def set_date_as_index(data: pd.DataFrame):
 
 def get_date_from_datetime(data: pd.DataFrame, column: str):
     """Powwow reports on intervals smaller than hour, use date only."""
+    # make sure index has date part only to be able to merge dataframes
     data['date'] = data[[column]].apply(lambda x: datetime(x).date(), axis=1)
     return data
 
@@ -65,6 +66,7 @@ def powwow_power_data(folder_path: str):
 
 
 def power_per_crop_per_irrigation_type():
+    """Select power data based on power type, year, crop."""
     folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
     crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     years = ['2017', '2018', '2019']
