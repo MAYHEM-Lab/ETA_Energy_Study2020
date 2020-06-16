@@ -95,6 +95,15 @@ def flatten_powwow_power_data(folder_path):
     return frame
 
 
+def test_sites_merge():
+    folder = '/Users/N/projects/evapotranspiration/PowWow_test_sites/'
+    site_folders = ['Columbine_kml/energy_data/', 'Terranova/energy_data/']
+    site_results = ['columbine_power_result.csv', 'terranova_power_result.csv']
+    for site_folder, site_result in zip(site_folders, site_results):
+        result_path = site_folder + site_result
+        flatten_powwow_power_data(folder).to_csv(result_path, index=False)
+
+
 def powwow_2014_census_eta_data_to_single_frame():
     # --- 2014 ETa data to a single file --- #
     # This filename example is of the form /full_path/CropETa_2019038.csv

@@ -21,10 +21,11 @@ def create_date(data: pd.DataFrame):
     return data
 
 
-def select_year(data: pd.DataFrame, year: str):
+def select_year(data: pd.DataFrame, year: str, date_column='date'):
     """Returns dataframe with only specified year worth of data"""
-    data = data[data['date'] >= str(year)]
-    data = data[data['date'] < str(int(year)+1)]
+    data = data[data[date_column] >= str(year)]
+    data = data[data[date_column] < str(int(year)+1)]
+    data['date'] = data[date_column]
     return data
 
 
@@ -49,17 +50,18 @@ def set_date_as_index(data: pd.DataFrame):
 def get_date_from_datetime(data: pd.DataFrame, column: str):
     """Powwow reports on intervals smaller than hour, use date only."""
     # make sure index has date part only to be able to merge dataframes
-    data['date'] = data[[column]].apply(lambda x: datetime(x).date(), axis=1)
+    data['date'] = data[[column]].apply(lambda x: pd.to_datetime(x).date(), axis=1)
     return data
 
 
 def powwow_power_data(folder_path: str):
     """Prepare powwow power files for analysis"""
+    # used for: Columbine and Terranova/terranova_power_result.csv
     data = pd.read_csv(folder_path)
     # from start time compute date, removing time, for index alignment
-    data = get_date_from_datetime(data)
+    data = get_date_from_datetime(data, 'Start Time')
     # group by date, aggregate using sum
-    data = get_total_power_usage(data)
+    #data = get_total_power_usage(data)
     # set index to date
     data = set_date_as_index(data)
     return data
@@ -79,21 +81,3 @@ def power_per_crop_per_irrigation_type():
             data = get_total_power_usage(data)
             data = set_date_as_index(data)
             data.to_csv(year + '_' + crop + '.csv')
-
-
-def plot_power_per_crop_per_irrigation_type():
-    """Plots power only graphs per crop and irrigation type."""
-    crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
-    years = ['2017', '2018', '2019']
-    windows = [1, 7, 30]
-    for year in years:
-        for crop in crops:
-            data = pd.read_csv('crop_csv/' + year + '_' + crop + '.csv')
-            place='delano_sce'
-            for window in windows:
-                data['Energy (KWh)'] = data['total'].rolling(
-                    window=window, min_periods=1).mean()
-                data[['Energy (KWh)']].plot(figsize=(20, 10))
-                plt.title(crop)
-                plt.savefig('images/crop/power_' + place + '_'+ str(year)
-                            + '_' + crop + '_' + str(window) + '.png')

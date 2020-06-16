@@ -3,14 +3,16 @@ from datetime import datetime
 import pandas as pd
 
 
-def daily_eta_acre_inch(data: pd.DataFrame):
+def daily_eta_acre_inch(data: pd.DataFrame, column='_mean'):
     """
     Formula to compute Acre-Feet from the field size (acres) and mean ETa (")
+    Note: if DB column is in inches already, use column parameter as 'inches'.
     Function assumes two columns are present in the data frame.
+    :param column:
     :param data: Pandas DataFrame
     :return: Pandas DataFrame
     """
-    data['Ac-Ft'] = data['acres'] * data['_mean'] / 12.0
+    data['Ac-Ft'] = data['acres'] * data[[column]] / 12.0
     return data
 
 
@@ -106,7 +108,21 @@ def per_crop_selection():
                                     crop + '.csv', sep=';', index=False)
 
 
-def aggregate_eta(data):
+def aggregate_eta(data: pd.DataFrame):
     """Sum all the column's values per day."""
     data_daily = data.groupby(['date']).sum()
     return data_daily
+
+
+def powwow_eta(data: pd.DataFrame):
+    """Multiply acres with columns that contain per day ETa and sum."""
+    # create pd.Series with those columns
+    eta_start_column = 'ETa001'
+    eta_end_column = 'ETa365'
+    # compute daily eta by selecting ETA columns for all 356 days, and summing inches values for each day
+    date_columns = data.columns[data.columns.get_loc(eta_start_column):data.columns.get_loc(eta_end_column)+1]
+    for column in date_columns:
+        # each column value is multiplied with corresponding field size (acres)
+        data[column] = data[column] * data['Acres']/12.0
+    result = pd.Series(data[date_columns].sum(), name='Ac-Ft')
+    return pd.DataFrame(data[date_columns].sum())
