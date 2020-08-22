@@ -1,5 +1,7 @@
 
-# ETa and Energy Study 2020
+### ETa and Energy Study 2020
+
+#### Scripts
 
 Energy and ETa data come as a group of daily (csv) files.
 
@@ -16,5 +18,6 @@ location, or power usage type.
 - _visualization.py_ combines Pandas data frames produced
 with the previous files and plots them.
 
-
-
+#### Clustering
+- Methods for GMM, K-means (_gmm_clustering.py_), and extended K-means with Mahalanobis distance clustering (_mahalanobis_kmeans.py_).
+- Methods for parsing (_filter_clusters.py_) and visualizing (_cluster_map_viz.py_) the results.
