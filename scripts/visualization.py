@@ -4,16 +4,18 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-sns.set(context='talk', style='white')
-
 import scripts.eta_data_analysis as ea
 import scripts.power_data_analysis as pa
+
+sns.set(context='talk', style='white')
 
 
 def viz_per_crop():
     """Visualize per crop ETa vs power for Delano-SCE region."""
-    folder = '/Users/N/projects/evapotranspiration/data/'
+    folder = '../../data/'
+    # see power_data_analysis.py for more details
     power_folder = folder + 'delano_sce_power_per_crop/'
+    # see eta_data_analysis.py for more details
     eta_folder = folder + 'delano_sce_eta_per_crop/'
     crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     years = ['2017', '2018', '2019']
@@ -28,7 +30,7 @@ def viz_per_crop():
             power = pd.read_csv(power_folder + year + '_' + crop + '.csv')
             daily_power = pa.get_total_power_usage(power)
             # use all_data = daily_eta[0:304] for 2019 - power df is shorter.
-            # merge power and eta data into a single dataframe
+            # merge power and eta data into a single DataFrame
             all_data = daily_eta
             for c in daily_power.columns:
                 all_data[c] = daily_power[c]
@@ -68,7 +70,7 @@ def plot_power_per_crop_per_irrigation_type():
 
 def terranova_prepare():
     """Prepare DataFrame with Power and ETa columns for Terranova."""
-    folder = '/Users/N/projects/evapotranspiration/PowWow_test_sites/Terranova/'
+    folder = '../../PowWow_test_sites/Terranova/'
     power_file = 'terranova_power_result.csv'
     power = pd.read_csv(folder + power_file)
     years = ['2017', '2018', '2019']
@@ -89,7 +91,7 @@ def terranova_prepare():
 def columbine_prepare():
     """Prepare DataFrame with Power and ETa columns for Columbine."""
     # Note: different formats in which farm ETa files come.
-    folder = '/Users/N/projects/evapotranspiration/PowWow_test_sites/Columbine_kml/'
+    folder = '../../PowWow_test_sites/Columbine_kml/'
     power = pd.read_csv(folder + 'columbine_power_result.csv')
     eta = pd.read_csv(folder + 'eta_columbine_c16.csv', sep=';')
     years = ['2017', '2018', '2019']
@@ -121,8 +123,29 @@ def plot_prepared_test_site(folder: str, years: [str], site: str, windows=(1, 7,
 
 
 def plot_test_sites():
-    folder = '/Users/N/projects/evapotranspiration/PowWow_test_sites/'
+    folder = '../../PowWow_test_sites/'
     params = [[folder + 'Columbine_kml/', ['2018', '2019'], 'columbine'],
               [folder + 'Terranova/', ['2017', '2018', '2019'], 'terranova']]
     for param in params:
         plot_prepared_test_site(param[0], param[1], param[2])
+
+
+def plot_power_per_crop_per_cluster_per_irrigation_type():
+    """Plots power only graphs per crop and irrigation type."""
+    # data produced by pa.power_per_crop_per_irrigation_type
+    folder = '../../crop_clusters/'
+    # crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
+    crops = ['almonds0', 'almonds1', 'almonds2']
+    years = ['2017', '2018', '2019']
+    windows = [1, 7, 30]
+    for year in years:
+        for crop in crops:
+            data = pd.read_csv(folder + year + '_' + crop + '.csv')
+            place = 'delano_sce'
+            for window in windows:
+                data['Energy (KWh)'] = data['total'].rolling(
+                    window=window, min_periods=1).mean()
+                data[['Energy (KWh)']].plot(figsize=(20, 10))
+                plt.title(crop)
+                plt.savefig(folder + 'images/power_' + place + '_' + str(year)
+                            + '_' + crop + '_' + str(window) + '.png')

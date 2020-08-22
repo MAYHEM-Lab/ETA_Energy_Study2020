@@ -4,8 +4,6 @@ from glob import glob
 from os.path import basename
 import pandas as pd
 
-# TODO add filename parsing function as parameter to the flattening function
-
 
 def parse_weekly_filename(filename: str):
     """filename in the example is of the form weekly201801wk4.csv"""
@@ -96,7 +94,7 @@ def flatten_powwow_power_data(folder_path):
 
 
 def test_sites_merge():
-    folder = '/Users/N/projects/evapotranspiration/PowWow_test_sites/'
+    folder = '../../PowWow_test_sites/'
     site_folders = ['Columbine_kml/energy_data/', 'Terranova/energy_data/']
     site_results = ['columbine_power_result.csv', 'terranova_power_result.csv']
     for site_folder, site_result in zip(site_folders, site_results):
@@ -108,13 +106,13 @@ def powwow_2014_census_eta_data_to_single_frame():
     # --- 2014 ETa data to a single file --- #
     # This filename example is of the form /full_path/CropETa_2019038.csv
     # use parse_daily_eta_filename for flattening # TODO
-    folder = '/Users/N/projects/evapotranspiration/data/ProcessedETa_2014'
+    folder = '../../data/ProcessedETa_2014'
     flatten_files(folder).to_csv(folder + '/2019_eta_census14.csv', sep=';')
 
 
 def power_per_crop_into_single_file():
     # --- Power per crop data into a single file --- #
-    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
+    folder = '../../crop_data/eta-sce'
     crops = ['almonds', 'citrus', 'grapes', 'idle','pistachios', 'wheat']
     # TODO
     flatten_crop_files(folder, crops).to_csv(folder + '/all_crops.csv')
@@ -122,7 +120,7 @@ def power_per_crop_into_single_file():
 
 def power_per_crop_data_into_multiple_crop_files(folder):
     # --- Power per crop data into multiple files --- #
-    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
+    folder = '../../crop_data/eta-sce'
     crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     for crop in crops:
         flatten_crop_files(folder, [crop]).to_csv(folder + '/' + crop + '.csv')
@@ -130,7 +128,7 @@ def power_per_crop_data_into_multiple_crop_files(folder):
 
 def number_of_unique_accounts():
     # --- get number of unique accounts from each dataset --- #
-    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
+    folder = '../../crop_data/eta-sce'
     crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
     for crop in crops:
         data = pd.read_csv(folder + '/' + crop + '.csv')
@@ -139,5 +137,30 @@ def number_of_unique_accounts():
 
 def process_2016_census_eta():
     # -- preprocess 2016 census ETa file --- #
-    folder = '/Users/N/projects/evapotranspiration/data/ProcessedETa_2016'
+    folder = '../../data/ProcessedETa_2016'
     flatten_files(folder).to_csv(folder + '/201789_eta_census16.csv', sep=';')
+
+
+def merge_water_table_depth():
+    crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'tomatoes']
+    folder = '../../clustering/resources/crop_per_county/'
+    regions = ['fresno', 'kern']
+    water_data_file = folder + 'S2018_DBGS_huron_delano.csv'
+    for region in regions:
+        for crop in crops:
+            crop_df = pd.read_csv(folder + crop + '_' + region + '.csv')
+            result_filename = folder + crop + '_' + region + '_wt.csv'
+            wt_df = pd.read_csv(water_data_file)
+            wt_df = wt_df[['OBJECTID_1', '_mean']]
+            print(wt_df.head())
+            data = pd.merge(crop_df, wt_df, left_on='objectid_1', right_on='OBJECTID_1')
+            print(data.head())
+            data.to_csv(result_filename)
+
+
+def power_per_crop_cluster_data_into_multiple_crop_files():
+    # --- Power per crop cluster data into multiple files --- #
+    folder = '../../crop_clusters'
+    crops = ['almonds0', 'almonds1', 'almonds2']
+    for crop in crops:
+        flatten_crop_files(folder, [crop]).to_csv(folder + '/' + crop + '.csv')

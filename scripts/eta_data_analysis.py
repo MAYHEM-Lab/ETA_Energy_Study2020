@@ -61,7 +61,7 @@ def create_date(data: pd.DataFrame):
 def etl_eta_c_16_data_save_data():
     """Prepare census16 based ETa file for DB import - part 1"""
     # Note: ETa file is couple of gigabytes. use above methods to downsize.
-    folder = '/Users/N/projects/evapotranspiration/data/'
+    folder = '../../data/'
     filename = '201789_eta_census16.csv'
     print(folder + filename)
     eta_2016 = pd.read_csv(folder + filename, sep=';')
@@ -72,7 +72,7 @@ def etl_eta_c_16_data_save_data():
 def etl_eta_c_16_data_read_data():
     """Prepare census16 based ETa file for DB import part 2"""
     # Note: ETa file is couple of gigabytes. use above methods to downsize.
-    folder = '/Users/N/projects/evapotranspiration/data/'
+    folder = '/../../data/'
     years = ['2017', '2018', '2019']
     for year in years:
         filename = 'eta_census2016_year' + year + '.csv'
@@ -94,7 +94,7 @@ def select_crop(data: pd.DataFrame, crop_column_name: str, crop: str):
 
 
 def per_crop_selection():
-    folder = '/Users/N/projects/evapotranspiration/data/'
+    folder = '../../data/'
     file = 'eta_c16.csv'
     crops = ['Almonds', 'Citrus', 'Grapes', 'Idle', 'Pistachios', 'Wheat']
     years = ['2017', '2018', '2019']

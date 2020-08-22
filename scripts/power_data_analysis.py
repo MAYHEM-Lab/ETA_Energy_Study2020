@@ -69,8 +69,11 @@ def powwow_power_data(folder_path: str):
 
 def power_per_crop_per_irrigation_type():
     """Select power data based on power type, year, crop."""
-    folder = '/Users/N/projects/evapotranspiration/crop_data/eta-sce'
-    crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
+    folder = '../../crop_clusters'
+    # For crops:
+    # crops = ['almonds', 'citrus', 'grapes', 'idle', 'pistachios', 'wheat']
+    # For clusters:
+    crops = ['almonds0', 'almonds1', 'almonds2']
     years = ['2017', '2018', '2019']
     for year in years:
         for crop in crops:
@@ -79,5 +82,6 @@ def power_per_crop_per_irrigation_type():
             data = select_year(data, year)
             data = filter_irrigation_type(data, 'IRRIGATION PUMPING')
             data = get_total_power_usage(data)
-            data = set_date_as_index(data)
-            data.to_csv(year + '_' + crop + '.csv')
+            # Uncomment below for power-only plots (ETA excluded).
+            # data = set_date_as_index(data)
+            data.to_csv(folder + '/' + year + '_' + crop + '.csv')
