@@ -1,5 +1,3 @@
-Create centroids table:
-
 ## Per region analysis - summary
 ```
 create table delano_ids_2016 as
