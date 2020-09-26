@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 from glob import glob
 from os.path import basename
+import numpy as np
 import pandas as pd
 
 
@@ -25,6 +26,22 @@ def parse_daily_energy_crop_filename(filename: str, crop_name: str):
     n = len(crop_name)
     name = filename[n+1:]
     return {"year": name[6:10], "month": name[11:13], "day": name[14:16]}
+
+
+def parse_pge_daily_filename(filename: str, crop_name):
+    """Parse filename string and return dictionary of parameters"""
+    # This filename  is of the form /full_path/region_crop_name-YYYY-MMM-DD-daily.csv
+    # #huron_tomatoes1-2019-SEP-24-daily.csv
+
+    filename = basename(filename)
+    crop_name = filename[0:-21]
+    n = len(crop_name)
+    name = filename[n:]
+    #print(name)
+    months = {'JAN': 1, 'FEB': 2, 'MAR': 3, 'APR': 4, 'MAY': 5, 'JUN': 6,
+              'JUL': 7, 'AUG': 8, 'SEP': 9, 'OCT': 10, 'NOV': 11, 'DEC': 12}
+
+    return {"year": name[0:4], "month": str(months[name[5:8]]), "day": name[9:11]}
 
 
 def parse_daily_eta_filename(filename: str):
@@ -161,6 +178,46 @@ def merge_water_table_depth():
 def power_per_crop_cluster_data_into_multiple_crop_files():
     # --- Power per crop cluster data into multiple files --- #
     folder = '../../crop_clusters'
-    crops = ['almonds0', 'almonds1', 'almonds2']
+    #crops = ['almonds0', 'almonds1', 'almonds2']
+    #crops = ['citrus1citrus1', 'citrus2', 'citrus3']
+    #crops = ['huron-almonds0', 'huron-almonds1']
+    #crops = ['huron-pistachios0', 'huron-pistachios1']
+    crops = ['huron-tomatoes0', 'huron-tomatoes1']
     for crop in crops:
         flatten_crop_files(folder, [crop]).to_csv(folder + '/' + crop + '.csv')
+
+
+def flatten_pge_files(folder_path: str, crop: str):
+    """Flatten CSV files with filename info into a single DataFrame"""
+    path = folder_path + "/*csv"
+    filenames = glob(path)
+    dataframes = []
+    with open(folder_path.strip()+crop+'.csv', 'w+') as f:
+        for filename in filenames:
+            try:
+                df = pd.read_csv(filename)
+                df = df.astype(float)
+                params = parse_pge_daily_filename(filename, crop_name=crop)
+                if round(np.sum(np.array(df['hours'])), 4) % 24.0 != 0:
+                    print(filename)
+                    print(np.sum(np.array(df['hours'])))
+                line = ','.join(params.values()) + ',' + str(np.sum(np.array(df['hours']))) + '\n'
+                f.write(line)
+            except:
+                print(filename)
+        f.flush()
+
+
+def pge_files():
+    folder = '../../crop_clusters/pge/'
+    sub_folder = ['huron_tomatoes1-daily']
+    crop = sub_folder[0][0:-5]
+    for sf in sub_folder:
+        flatten_pge_files(folder+sf, crop)
+
+
+def main():
+    pge_files()
+
+
+main()
