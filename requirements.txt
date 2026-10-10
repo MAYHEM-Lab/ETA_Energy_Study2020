@@ -1,4 +1,4 @@
-geopy==2.0.0
+geopy==2.5.0
 matplotlib==3.3.1
 mplleaflet==0.0.5
 numpy==1.22.0
